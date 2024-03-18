@@ -1,0 +1,373 @@
+Program.Sub.ScreenSU.Start
+Gui.JobOpsUpd..Create
+Gui.JobOpsUpd..Caption("Job Operations Update")
+Gui.JobOpsUpd..Size(6210,1935)
+Gui.JobOpsUpd..MinX(0)
+Gui.JobOpsUpd..MinY(0)
+Gui.JobOpsUpd..Position(0,0)
+Gui.JobOpsUpd..BackColor(-2147483633)
+Gui.JobOpsUpd..MaxButton(False)
+Gui.JobOpsUpd..MousePointer(0)
+Gui.JobOpsUpd..Sizeable(False)
+Gui.JobOpsUpd..Event(UnLoad,JobOpsUpd_UnLoad)
+Gui.JobOpsUpd.frmFP.Create(Frame)
+Gui.JobOpsUpd.frmFP.Size(5880,855)
+Gui.JobOpsUpd.frmFP.Position(75,105)
+Gui.JobOpsUpd.frmFP.Caption(".csv File Path")
+Gui.JobOpsUpd.cmdFPBrowse.Create(Button)
+Gui.JobOpsUpd.cmdFPBrowse.Size(405,375)
+Gui.JobOpsUpd.cmdFPBrowse.Position(5340,300)
+Gui.JobOpsUpd.cmdFPBrowse.Parent("frmFP")
+Gui.JobOpsUpd.cmdFPBrowse.Caption("BROWSE")
+Gui.JobOpsUpd.cmdFPBrowse.Event(Click,cmdFPBrowse_Click)
+Gui.JobOpsUpd.txtFP.Create(TextBox,"",True,5130,300,0,120,345,True,0,"Arial",8,-2147483643,1)
+Gui.JobOpsUpd.txtFP.Parent("frmFP")
+Gui.JobOpsUpd.txtFP.Event(LostFocus,txtFP_LostFocus)
+Gui.JobOpsUpd.cmdCancel.Create(Button)
+Gui.JobOpsUpd.cmdCancel.Size(855,375)
+Gui.JobOpsUpd.cmdCancel.Position(3195,1065)
+Gui.JobOpsUpd.cmdCancel.Caption("Cancel")
+Gui.JobOpsUpd.cmdCancel.FontStyle(True,False,False,False,False)
+Gui.JobOpsUpd.cmdCancel.Event(Click,cmdCancel_Click)
+Gui.JobOpsUpd.cmdClear.Create(Button)
+Gui.JobOpsUpd.cmdClear.Size(855,375)
+Gui.JobOpsUpd.cmdClear.Position(4155,1065)
+Gui.JobOpsUpd.cmdClear.Caption("Clear")
+Gui.JobOpsUpd.cmdClear.FontStyle(True,False,False,False,False)
+Gui.JobOpsUpd.cmdClear.Event(Click,cmdClear_Click)
+Gui.JobOpsUpd.cmdRun.Create(Button)
+Gui.JobOpsUpd.cmdRun.Size(855,375)
+Gui.JobOpsUpd.cmdRun.Position(5115,1065)
+Gui.JobOpsUpd.cmdRun.Caption("Run")
+Gui.JobOpsUpd.cmdRun.FontStyle(True,False,False,False,False)
+Gui.JobOpsUpd.cmdRun.Event(Click,cmdRun_Click)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+v.Global.sLogFile.Declare
+v.Global.sLog.Declare
+v.Global.sFile.Declare
+v.Global.iCount.Declare
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'Robert Cole 07/16/2021
+'Added/ Changed:
+f.Intrinsic.Control.Try
+V.Local.sError.Declare
+
+v.Local.bRet.Declare
+v.Local.sPID.Declare
+v.Local.sFP.Declare
+
+f.Intrinsic.Control.CallSub(DIRECTORY_CHECK)
+f.Intrinsic.Control.CallSub(txtFP_LostFocus)
+
+gui.JobOpsUpd..Visible(true)
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.Main.End
+
+Program.Sub.DIRECTORY_CHECK.Start
+'CHECK FOR AND CREATE ANY DIRECTORIES NEEDED FOR 6434
+f.Intrinsic.Control.Try
+V.Local.sError.Declare
+
+v.Local.bRet.Declare
+v.Local.sPID.Declare
+v.Local.sFP.Declare
+v.Local.sLog.Declare
+v.Local.sLogFile.Declare
+
+f.Intrinsic.String.Build("{0}\CUSTOM\6434",v.Caller.GlobalDir,v.Local.sFP)
+f.Intrinsic.File.DirExists(v.Local.sFP,v.Local.bRet)
+f.Intrinsic.Control.If(v.Local.bRet,=,false)
+	f.Intrinsic.File.CreateDir(v.Local.sFP)
+f.Intrinsic.Control.EndIf
+v.Local.sFP.Set("")
+
+f.Intrinsic.String.Build("{0}\CUSTOM\6434\IMPORT",v.Caller.GlobalDir,v.Local.sFP)
+f.Intrinsic.File.DirExists(v.Local.sFP,v.Local.bRet)
+f.Intrinsic.Control.If(v.Local.bRet,=,false)
+	f.Intrinsic.File.CreateDir(v.Local.sFP)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.String.Build("{0}\CUSTOM\6434\PROCESSED",v.Caller.GlobalDir,v.Local.sFP)
+f.Intrinsic.File.DirExists(v.Local.sFP,v.Local.bRet)
+f.Intrinsic.Control.If(v.Local.bRet,=,false)
+	f.Intrinsic.File.CreateDir(v.Local.sFP)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.String.Build("{0}\CUSTOM\6434\LOG",v.Caller.GlobalDir,v.Local.sFP)
+f.Intrinsic.File.DirExists(v.Local.sFP,v.Local.bRet)
+f.Intrinsic.Control.If(v.Local.bRet,=,false)
+	f.Intrinsic.File.CreateDir(v.Local.sFP)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.String.Build("{0}\6434.log",v.Local.sFP,v.Local.sFP)
+f.Intrinsic.File.Exists(v.Local.sFP,v.Local.bRet)
+f.Intrinsic.Control.If(v.Local.bRet,=,false)
+	f.Intrinsic.String.Build("{0} {1} - INITIALIZATION OF LOG FILE.",V.Ambient.Date,v.Ambient.Time,v.Local.sLog)
+	f.Intrinsic.File.String2File(v.Local.sFP,v.Local.sLog)
+f.Intrinsic.Control.EndIf
+
+v.Global.sLogFile.Set(v.Local.sFP)
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.DIRECTORY_CHECK.End
+
+Program.Sub.JobOpsUpd_UnLoad.Start
+gui.JobOpsUpd..Visible(false)
+
+f.Intrinsic.Control.End
+Program.Sub.JobOpsUpd_UnLoad.End
+
+Program.Sub.cmdFPBrowse_Click.Start
+'OPEN BROWSER TO SELECT IMPORT FILE PATH
+f.Intrinsic.Control.Try
+V.Local.sError.Declare
+
+v.Local.sSQL.Declare
+v.Local.sRet.Declare
+v.Local.sFile.Declare
+v.Local.sLine.Declare
+v.Local.sData.Declare
+v.Local.sJOB.Declare
+v.Local.sSUFFIX.Declare
+v.Local.sSEQ.Declare
+v.Local.i.Declare
+
+f.Intrinsic.UI.ShowOpenFileDialog("","","",v.Local.sFile)
+
+f.Intrinsic.Control.If(v.Local.sFile,<>,"***CANCEL***")
+
+	gui.JobOpsUpd..Enabled(false)
+	
+	v.Global.sFile.Set(v.Local.sFile)
+	gui.JobOpsUpd.txtFP.Text(v.Global.sFile)
+	
+	f.Intrinsic.File.File2String(v.Local.sFile,v.Local.sRet)
+	
+	f.Intrinsic.Control.If(v.DataTable.dtImport.Exists,=,true)
+		f.Data.DataTable.Close("dtImport")
+	f.Intrinsic.Control.EndIf
+	
+	f.Data.DataTable.Create("dtImport",true)
+	f.Data.DataTable.AddColumn("dtImport","JOB","string")
+	f.Data.DataTable.AddColumn("dtImport","SUFFIX","string")
+	f.Data.DataTable.AddColumn("dtImport","SEQ","string")
+	f.Data.DataTable.AddColumn("dtImport","PERCENT_COMPLETE","string")
+	f.Data.DataTable.AddColumn("dtImport","DATE_START","string")
+	f.Data.DataTable.AddColumn("dtImport","DATE_DUE","string")
+	f.Data.DataTable.AddColumn("dtImport","HOURS_ESTIMATED","string")
+	
+	f.Intrinsic.String.Split(v.Local.sRet,v.Ambient.NewLine,v.Local.sLine)
+	
+	f.Intrinsic.Control.For(v.Local.i,v.Local.sLine.LBound,v.Local.sLine.UBound,1)
+		
+		f.Intrinsic.String.Split(v.Local.sLine(v.Local.i),",",v.Local.sData)
+	
+		f.Intrinsic.Control.If(v.Local.sData(0),<>,"",and,v.Local.sData(0),<>,"JOB")
+		
+'			f.Intrinsic.String.LPad(v.Local.sData(0),"0",6,v.Local.sJOB)
+				v.Local.sJOB.Set(v.Local.sData(0))
+'			f.Intrinsic.Control.If(v.Local.sData(1),<>,"")
+'				f.Intrinsic.String.LPad(v.Local.sData(1),"0",3,v.Local.sSUFFIX)
+'			f.Intrinsic.Control.Else
+				v.Local.sSUFFIX.Set(v.Local.sData(1))
+'			f.Intrinsic.Control.EndIf
+			f.Intrinsic.String.LPad(v.Local.sData(2),"0",6,v.Local.sSEQ)
+
+			f.Data.DataTable.AddRow("dtImport","JOB",v.Local.sJOB,"SUFFIX",v.Local.sSUFFIX,"SEQ",v.Local.sSEQ,"PERCENT_COMPLETE",v.Local.sData(3),"DATE_START",v.Local.sData(4),"DATE_DUE",v.Local.sData(5),"HOURS_ESTIMATED",v.Local.sData(6))
+		
+		f.Intrinsic.Control.EndIf
+
+	f.Intrinsic.Control.Next(v.Local.i)	
+	
+	gui.JobOpsUpd..Enabled(true)
+	
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.CallSub(txtFP_LostFocus)
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+	f.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.End 
+f.Intrinsic.Control.EndTry
+Program.Sub.cmdFPBrowse_Click.End
+
+Program.Sub.cmdRun_Click.Start
+f.Intrinsic.Control.Try
+V.Local.sError.Declare
+
+v.Local.sSQL.Declare
+v.Local.sRet.Declare
+v.Local.sDateS.Declare
+'MMDDYY
+v.Local.sDateD.Declare
+'MMDDYY
+v.Local.sDateC.Declare
+'MMDDYY
+v.Local.sPERCENT.Declare
+v.Local.sMSG.Declare
+v.Local.fDolEst.Declare
+v.Local.i.Declare
+
+f.Intrinsic.UI.InvokeWaitDialog("Please wait...Loading...","LOADING")
+
+gui.JobOpsUpd..Enabled(false)
+
+f.ODBC.Connection!conx.OpenCompanyConnection
+
+f.Intrinsic.Control.For(v.Local.i,0,v.DataTable.dtImport.RowCount--,1)
+
+	f.Intrinsic.Control.If(v.DataTable.dtImport(v.Local.i).JOB!FieldValTrim,<>,"")
+
+		f.Intrinsic.String.Build("Select x.FLAG_CLOSED, y.DATE_CLOSED from V_JOB_OPERATIONS as x left join V_JOB_HEADER as y on x.JOB = y.JOB and x.SUFFIX = y.SUFFIX where x.JOB = '{0}' and x.SUFFIX = '{1}' and x.SEQ = '{2}'",v.DataTable.dtImport(v.Local.i).JOB!FieldValTrim,v.DataTable.dtImport(v.Local.i).SUFFIX!FieldValTrim,v.DataTable.dtImport(v.Local.i).SEQ!FieldValTrim,v.Local.sSQL)
+		f.ODBC.Connection!conx.ExecuteandReturn(v.Local.sSQL,v.Local.sRet)
+		f.Intrinsic.String.Split(v.Local.sRet,"*!*",v.Local.sRet)
+			
+		f.Intrinsic.Control.If(v.Local.sRet(0),<>,"Y",and,v.Local.sRet(1),=,"1/1/1900")
+		
+			f.Intrinsic.String.Build("Select * from JOB_OPERATIONS where JOB = '{0}' and SUFFIX = '{1}' and SEQ = '{2}'",v.DataTable.dtImport(v.Local.i).JOB!FieldValTrim,v.DataTable.dtImport(v.Local.i).SUFFIX!FieldValTrim,v.DataTable.dtImport(v.Local.i).SEQ!FieldValTrim,v.Local.sSQL)
+			f.ODBC.Connection!conx.OpenLocalRecordsetRW("OPS",v.Local.sSQL)
+			
+			f.Intrinsic.String.Format(v.DataTable.dtImport(v.Local.i).DATE_START!FieldVal,"MMDDYY",v.Local.sDateS)
+			f.Intrinsic.String.Format(v.DataTable.dtImport(v.Local.i).DATE_DUE!FieldVal,"MMDDYY",v.Local.sDateD)
+			f.Intrinsic.String.Format(v.Ambient.Date,"MMDDYY",v.Local.sDateC)
+			v.Local.sPERCENT.Set(v.DataTable.dtImport(v.Local.i).PERCENT_COMPLETE!FieldValTrim)
+			
+			f.Intrinsic.Control.If(v.Local.sDateS,<>,"")
+				f.ODBC.conx!OPS.Set!DATE_START(v.Local.sDateS)
+			f.Intrinsic.Control.EndIf
+			
+			f.Intrinsic.Control.If(v.Local.sDateD,<>,"")
+				f.ODBC.conx!OPS.Set!DATE_DUE(v.Local.sDateD)
+			f.Intrinsic.Control.EndIf
+			
+			f.Intrinsic.Control.If(v.Local.sPERCENT,<>,"")
+				f.Intrinsic.Control.If(v.DataTable.dtImport(v.Local.i).PERCENT_COMPLETE!FieldVal,=,1)
+					f.ODBC.conx!OPS.Set!PERCENT_COMPLETE(v.DataTable.dtImport(v.Local.i).PERCENT_COMPLETE!FieldVal)
+					f.ODBC.conx!OPS.Set!DATE_COMPLETED(v.Local.sDateC)
+					f.ODBC.conx!OPS.Set!FLAG_CLOSED("Y")
+				f.Intrinsic.Control.Else
+					f.ODBC.conx!OPS.Set!PERCENT_COMPLETE(v.DataTable.dtImport(v.Local.i).PERCENT_COMPLETE!FieldVal)
+				f.Intrinsic.Control.EndIf
+			f.Intrinsic.Control.EndIf
+			
+			f.Intrinsic.Control.If(v.DataTable.dtImport(v.Local.i).HOURS_ESTIMATED!FieldVal,<>,"")
+				f.ODBC.conx!OPS.Set!HOURS_ESTIMATED(v.DataTable.dtImport(v.Local.i).HOURS_ESTIMATED!FieldVal)
+				f.Intrinsic.Math.Mult(v.DataTable.dtImport(v.Local.i).HOURS_ESTIMATED!FieldVal,v.ODBC.conx!OPS.FieldVal!BURDEN,v.Local.fDolEst)
+				f.ODBC.conx!OPS.Set!DOLLARS_ESTIMATED(v.Local.fDolEst)
+			f.Intrinsic.Control.EndIf
+			
+			f.ODBC.conx!OPS.Update
+			f.ODBC.conx!OPS.Close
+			
+			f.Intrinsic.Math.Add(v.Global.iCount,1,v.Global.iCount)
+			
+		f.Intrinsic.Control.EndIf
+		
+	f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.Next(v.Local.i)
+
+f.ODBC.Connection!conx.Close
+
+gui.JobOpsUpd..Enabled(true)
+
+f.Intrinsic.UI.CloseWaitDialog
+
+f.Intrinsic.String.Build("{0} Sequence(s) updated successfully.",v.Global.iCount,v.Local.sMSG)
+f.Intrinsic.UI.Msgbox(v.Local.sMSG,"SUCCESS!")
+
+f.Intrinsic.Control.CallSub(Move_File)
+
+gui.JobOpsUpd.txtFP.Text("")
+v.Global.iCount.Set(0)
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+	f.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.End 
+f.Intrinsic.Control.EndTry
+Program.Sub.cmdRun_Click.End
+
+Program.Sub.cmdCancel_Click.Start
+f.Intrinsic.Control.Try
+V.Local.sError.Declare
+
+gui.JobOpsUpd.txtFP.Text("")
+f.Intrinsic.Control.CallSub(txtFP_LostFocus)
+f.Intrinsic.Control.CallSub(JobOpsUpd_Unload)
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+	f.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.End 
+f.Intrinsic.Control.EndTry
+Program.Sub.cmdCancel_Click.End
+
+Program.Sub.cmdClear_Click.Start
+f.Intrinsic.Control.Try
+V.Local.sError.Declare
+
+gui.JobOpsUpd.txtFP.Text("")
+f.Intrinsic.Control.CallSub(txtFP_LostFocus)
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+	f.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.End 
+f.Intrinsic.Control.EndTry
+Program.Sub.cmdClear_Click.End
+
+Program.Sub.Move_File.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+v.Local.sFP.Declare
+v.Local.sFPRet.Declare
+v.Local.sFN.Declare
+v.Local.sRet.Declare
+
+f.Intrinsic.String.Split(v.Global.sFile,"\",v.Local.sFPRet)
+f.Intrinsic.String.Build("{0}_{1}_{2}",v.Ambient.Date,v.Ambient.Time,v.Local.sFPRet(v.Local.sFPRet.UBound),v.Local.sFN)
+f.Intrinsic.File.MakeFilenameFriendly(v.Local.sFN,v.Local.sFN)
+f.Intrinsic.String.Build("{0}\CUSTOM\6434\PROCESSED\{1}",v.Caller.GlobalDir,v.Local.sFN,v.Local.sFP)
+f.Intrinsic.File.CopyFile(v.Global.sFile,v.Local.sFP)
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+	f.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.End 
+f.Intrinsic.Control.EndTry
+Program.Sub.Move_File.End
+
+Program.Sub.txtFP_LostFocus.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+f.Intrinsic.Control.If(v.Screen.JobOpsUpd!txtFP.Value,<>,"")
+	gui.JobOpsUpd.cmdRun.Enabled(true)
+f.Intrinsic.Control.Else
+	gui.JobOpsUpd.cmdRun.Enabled(false)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+	f.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.End 
+f.Intrinsic.Control.EndTry
+Program.Sub.txtFP_LostFocus.End
+
+
